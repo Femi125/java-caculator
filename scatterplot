@@ -1,0 +1,59 @@
+#28/04/2026
+#code for scatter plot
+#input was all the tables that has made for each fst and two PI (for example "fst of Fri-rio" and "pi_fri , pi_rio" -> mean was calculated here)
+# Load data
+df <- read.delim(file.choose(), header = TRUE)
+
+# Create mean Pi column
+df$PI <- rowMeans(df[, c("PI_F", "PI_R")], na.rm = TRUE)
+
+# Compute means
+mean_PI  <- mean(df$PI, na.rm = TRUE)
+mean_FST <- mean(df$FST_FR, na.rm = TRUE)
+
+# Compute 2.5% thresholds
+low_PI  <- quantile(df$PI, 0.025, na.rm = TRUE)
+high_PI <- quantile(df$PI, 0.975, na.rm = TRUE)
+
+low_FST  <- quantile(df$FST_FR, 0.025, na.rm = TRUE)
+high_FST <- quantile(df$FST_FR, 0.975, na.rm = TRUE)
+
+# Plot
+library(ggplot2)
+
+ggplot(df, aes(x = PI, y = FST_FR)) +
+  geom_point(size = 2, color = "steelblue") +
+  
+  # Mean lines
+  geom_vline(xintercept = mean_PI, linetype = "dashed") +
+  geom_hline(yintercept = mean_FST, linetype = "dashed") +
+  
+  # Threshold lines
+  geom_vline(xintercept = low_PI,  linetype = "dotted") +
+  geom_vline(xintercept = high_PI, linetype = "dotted") +
+  geom_hline(yintercept = low_FST,  linetype = "dotted") +
+  geom_hline(yintercept = high_FST, linetype = "dotted") +
+  
+  # Labels for lines
+  annotate("text", x = mean_PI, y = max(df$FST_FR), 
+           label = "Mean PI", vjust = -0.5, angle = 90) +
+  
+  annotate("text", x = max(df$PI), y = mean_FST, 
+           label = "Mean FST", hjust = 1.1) +
+  
+  annotate("text", x = low_PI, y = max(df$FST_FR), 
+           label = "2.5% PI", angle = 90, vjust = -0.5) +
+  
+  annotate("text", x = high_PI, y = max(df$FST_FR), 
+           label = "97.5% PI", angle = 90, vjust = -0.5) +
+  
+  annotate("text", x = max(df$PI), y = low_FST, 
+           label = "2.5% FST", hjust = 1.1) +
+  
+  annotate("text", x = max(df$PI), y = high_FST, 
+           label = "97.5% FST", hjust = 1.1) +
+  
+  labs( title = "FST vs PI table for FRI-RIO",x = "PI", y = "FST") +
+  theme_classic()
+
+
